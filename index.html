@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binomialverteilung · Übungen</title>
+<meta name="description" content="15 Anwendungsaufgaben zur Binomialverteilung mit Rechner, Diagrammen, Ergebnisprüfung und Musterlösungen, Mathe-LK Q2.">
+<link rel="stylesheet" href="katex/katex.min.css">
+<style>
+  :root {
+    --papier: #fbfaf7;
+    --karte: #ffffff;
+    --tinte: #2b2b33;
+    --grau: #6f6b78;
+    --linie: #e6e1d6;
+    --rot: #e2653f;
+    --blau: #3f6fae;
+    --gelb: #f0b429;
+    --gruen: #3d8f6f;
+    --balken: #c9d6e8;
+    --schatten: 0 14px 40px rgba(40, 35, 30, 0.10);
+    --rechner-breite: 320px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--papier);
+    color: var(--tinte);
+    font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    line-height: 1.55;
+    transition: padding-right .25s;
+  }
+  a { color: var(--blau); }
+  .breite { width: min(1100px, 100% - 32px); margin-inline: auto; }
+  button, input { font: inherit; }
+
+  /* ── Kopf ── */
+  header { padding: 56px 0 28px; }
+  .marke { display: inline-block; padding: 4px 14px; border-radius: 999px; background: var(--tinte); color: #fff; font-size: 14px; font-weight: 600; letter-spacing: .4px; }
+  h1 { margin: 14px 0 6px; font-size: clamp(34px, 6vw, 58px); line-height: 1.05; font-weight: 700; max-width: 15em; }
+  h1 span { color: var(--rot); }
+  .unterzeile { margin: 0; color: var(--grau); font-size: 20px; max-width: 46em; }
+  .stufenweg { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .stufenweg a { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 14px; background: var(--karte); border: 1px solid var(--linie); text-decoration: none; color: var(--tinte); font-size: 16px; box-shadow: 0 4px 14px rgba(40,35,30,.06); }
+  .stufenweg b { color: #fff; border-radius: 999px; padding: 1px 10px; font-size: 14px; }
+
+  /* ── Nachschlagen ── */
+  .nachschlagen { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; margin: 18px auto 34px; }
+  .kasten { background: var(--karte); border: 1px solid var(--linie); border-radius: 20px; padding: 24px 26px; box-shadow: var(--schatten); }
+  .kasten h2 { margin: 0 0 6px; font-size: 22px; }
+  .formel { margin: 10px 0 14px; padding: 10px 6px; border-radius: 14px; background: #fff7e8; text-align: center; font-size: 1.08em; overflow-x: auto; }
+  .regeln { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .regeln td { padding: 7px 6px; border-top: 1px solid var(--linie); vertical-align: middle; }
+  .regeln td:first-child { font-weight: 600; white-space: nowrap; width: 36%; }
+  .kasten p { margin: 8px 0; font-size: 16px; }
+  .kasten ol { margin: 10px 0 0; padding-left: 22px; font-size: 16px; }
+  .kasten li { margin: 4px 0; }
+
+  /* ── Leiste ── */
+  .leiste { position: sticky; top: 0; z-index: 5; background: rgba(251, 250, 247, .93); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linie); }
+  .leiste .breite { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 0; }
+  .fortschritt { flex: 1 1 260px; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; }
+  .fbalken { flex: 1; height: 10px; border-radius: 5px; background: var(--linie); overflow: hidden; }
+  .fbalken div { height: 100%; width: 0; background: linear-gradient(90deg, var(--gelb), var(--rot)); transition: width .4s; }
+  .filter { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter button { font-size: 15px; font-weight: 600; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--linie); background: var(--karte); color: var(--tinte); cursor: pointer; }
+  .filter button[aria-pressed="true"] { background: var(--tinte); border-color: var(--tinte); color: #fff; }
+
+  /* ── Aufgaben ── */
+  main { padding: 30px 0 60px; display: grid; gap: 30px; }
+  .aufgabe { background: var(--karte); border: 1px solid var(--linie); border-radius: 22px; box-shadow: var(--schatten); }
+  .aufgabe[hidden] { display: none; }
+  .kopf { position: relative; min-height: 260px; padding: 28px 30px; background-size: cover; background-position: right center; background-color: #f3eee3; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 22px 22px 0 0; overflow: hidden; }
+  .kopf::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(251, 248, 240, .97) 0%, rgba(251, 248, 240, .93) 42%, rgba(251, 248, 240, .2) 75%, rgba(251, 248, 240, 0) 100%); }
+  .kopf > * { position: relative; max-width: 580px; }
+  .kopf .zeile { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .nummer { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--tinte); color: #fff; font-weight: 700; }
+  .stufe { padding: 3px 12px; border-radius: 999px; font-size: 14px; font-weight: 700; color: #fff; }
+  .s1 { background: var(--gruen); }
+  .s2 { background: var(--blau); }
+  .s3 { background: var(--rot); }
+  .kopf h2 { margin: 2px 0 6px; font-size: 28px; line-height: 1.15; }
+  .kopf p { margin: 0; }
+
+  .inhalt { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 26px; padding: 8px 30px 26px; align-items: start; }
+  .teile { list-style: none; margin: 0; padding: 0; }
+  .teil { padding: 18px 0; border-top: 1px solid var(--linie); transition: background .2s; }
+  .teil:first-child { border-top: 0; }
+  .teil.aktiv { background: linear-gradient(90deg, rgba(240,180,41,.13), rgba(240,180,41,0)); border-radius: 12px; }
+  .frage { display: grid; grid-template-columns: 34px 1fr; gap: 6px; }
+  .buchstabe { font-weight: 700; color: var(--rot); }
+  .werkzeuge { margin: 12px 0 0 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .werkzeuge input { width: 160px; padding: 9px 12px; border-radius: 12px; border: 1.5px solid #cfc9bc; background: #fffdf8; }
+  .werkzeuge input:focus { outline: 3px solid rgba(240, 180, 41, .45); border-color: var(--gelb); }
+  .werkzeuge button { font-weight: 600; padding: 9px 16px; border-radius: 12px; border: 0; background: var(--tinte); color: #fff; cursor: pointer; }
+  .werkzeuge button.zeigen { background: #eef2f8; color: var(--blau); display: inline-flex; align-items: center; gap: 6px; }
+  .werkzeuge button.zeigen svg { width: 18px; height: 18px; }
+  .meldung { font-weight: 600; font-size: 16px; }
+  .meldung.richtig { color: var(--gruen); }
+  .meldung.falsch { color: var(--rot); }
+  .meldung.fast { color: #b07a00; }
+  .teil.geloest .buchstabe::after { content: " ✓"; color: var(--gruen); }
+  details { margin: 10px 0 0 34px; border-radius: 14px; border: 1px solid var(--linie); background: #fcfbf8; }
+  details + details { margin-top: 8px; }
+  summary { cursor: pointer; padding: 10px 16px; font-weight: 600; font-size: 16px; list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸"; transition: transform .2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details.tipp summary { color: #9a6a00; }
+  details.loesung summary { color: var(--blau); }
+  .rechnung { padding: 4px 18px 14px; overflow-x: auto; }
+  .rechnung .katex-display { margin: .5em 0; text-align: left; }
+  .rechnung .katex-display > .katex { text-align: left; }
+  .rechnung p { margin: .5em 0; }
+
+  /* ── Diagramm ── */
+  .diagramm { position: sticky; top: 76px; margin-top: 18px; padding: 16px 16px 12px; border: 1px solid var(--linie); border-radius: 18px; background: #fdfcf9; }
+  .diagramm .oben { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .diagramm .titel { font-weight: 700; font-size: 16px; }
+  .umschalter { display: inline-flex; border: 1.5px solid var(--linie); border-radius: 999px; overflow: hidden; }
+  .umschalter button { border: 0; background: transparent; padding: 3px 10px; font-size: 13px; font-weight: 600; color: var(--grau); cursor: pointer; }
+  .umschalter button[aria-pressed="true"] { background: var(--tinte); color: #fff; }
+  .diagramm svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+  .diagramm .achse { stroke: #bdb6a8; stroke-width: 1; }
+  .diagramm .gitter { stroke: #ece7dc; stroke-width: 1; }
+  .diagramm text { font-size: 11px; fill: var(--grau); font-family: inherit; }
+  .diagramm rect.b { fill: var(--balken); transition: fill .2s; }
+  .diagramm rect.b.an { fill: var(--rot); }
+  .diagramm rect.b.hover { fill: var(--gelb); }
+  .diagramm .info { min-height: 2.9em; margin-top: 6px; font-size: 15px; }
+  .diagramm .info .wert { font-weight: 700; color: var(--rot); }
+  .diagramm .hoverinfo { font-size: 13px; color: var(--grau); min-height: 1.4em; }
+  .regler { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-top: 8px; font-size: 15px; }
+  .regler input { width: 100%; accent-color: var(--rot); }
+  .regler output { font-weight: 700; min-width: 4.5em; text-align: right; }
+  .uebernehmen { margin-top: 8px; border: 0; background: none; color: var(--blau); font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; }
+
+  /* ── Rechner ── */
+  .rechner { position: fixed; top: 12px; right: 12px; z-index: 20; width: var(--rechner-breite); max-width: calc(100vw - 24px); background: var(--karte); border: 1px solid var(--linie); border-radius: 20px; box-shadow: 0 18px 50px rgba(40, 35, 30, .2); }
+  .rechner .griff { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; padding: 12px 16px; border: 0; background: var(--tinte); color: #fff; border-radius: 19px; cursor: pointer; font-weight: 700; font-size: 16px; }
+  .rechner.offen .griff { border-radius: 19px 19px 0 0; }
+  .rechner .griff svg { width: 20px; height: 20px; }
+  .rechner .griff .pfeil { transition: transform .2s; }
+  .rechner.offen .griff .pfeil { transform: rotate(180deg); }
+  .rechner .koerper { display: none; padding: 14px 16px 16px; }
+  .rechner.offen .koerper { display: block; }
+  .rechner:not(.offen) { width: auto; }
+  .eingaben { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .eingaben label { display: flex; flex-direction: column; font-size: 14px; font-weight: 700; color: var(--grau); }
+  .eingaben input { margin-top: 3px; width: 100%; padding: 7px 9px; border-radius: 10px; border: 1.5px solid #cfc9bc; background: #fffdf8; font-size: 17px; color: var(--tinte); }
+  .eingaben input:focus { outline: 3px solid rgba(240, 180, 41, .45); border-color: var(--gelb); }
+  .eingaben input.fehler { border-color: var(--rot); }
+  .ausgaben { margin: 12px 0 0; display: grid; gap: 6px; }
+  .ausgabe { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 10px; border-radius: 10px; background: #f7f4ee; font-size: 15px; }
+  .ausgabe.haupt { background: #fff1e9; }
+  .ausgabe b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .ausgabe.haupt b { color: var(--rot); }
+  .ausgabe.f b { color: var(--blau); }
+  .kenn { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14px; color: var(--grau); }
+  .minidiagramm { margin-top: 8px; }
+  .minidiagramm svg { display: block; width: 100%; height: 70px; }
+  .minidiagramm rect { fill: var(--balken); }
+  .minidiagramm rect.f { fill: #9fb5d6; }
+  .minidiagramm rect.k { fill: var(--rot); }
+  .rhinweis { margin: 6px 0 0; font-size: 13px; color: var(--grau); }
+
+  @media (min-width: 1240px) {
+    body.rechner-offen { padding-right: calc(var(--rechner-breite) + 24px); }
+  }
+  @media (max-width: 1239px) {
+    .rechner.offen { box-shadow: 0 18px 60px rgba(40, 35, 30, .35); }
+  }
+  @media (max-width: 1000px) {
+    .inhalt { grid-template-columns: 1fr; }
+    .diagramm { position: static; order: -1; margin-top: 10px; }
+  }
+  @media (max-width: 820px) {
+    body { font-size: 17px; }
+    header { padding-top: 70px; }
+    .nachschlagen { grid-template-columns: 1fr; }
+    .kopf { min-height: 0; padding-top: 52vw; background-size: 100% auto; background-position: center top; background-repeat: no-repeat; }
+    .kopf::before { background: linear-gradient(180deg, rgba(251, 248, 240, 0) 0, rgba(251, 248, 240, 0) 38vw, rgba(251, 248, 240, 1) 60vw); }
+    .leiste .breite { gap: 8px; padding: 8px 0; padding-right: 120px; }
+    .fortschritt { font-size: 13px; flex-basis: 100%; }
+    .filter { flex-wrap: nowrap; overflow-x: auto; width: 100%; scrollbar-width: none; }
+    .filter button { font-size: 13px; padding: 4px 11px; white-space: nowrap; }
+    .inhalt { padding: 6px 18px 20px; }
+    .kopf { padding-left: 18px; padding-right: 18px; }
+    .werkzeuge, details { margin-left: 0; }
+    .rechner { top: 8px; right: 8px; }
+  }
+</style>
+</head>
+<body>
+  <aside class="rechner" id="rechner" aria-label="Rechner für die Binomialverteilung">
+    <button class="griff" type="button" aria-expanded="false" aria-controls="rechnerKoerper">
+      <span style="display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M8 6.5h8M8 11h.01M12 11h.01M16 11h.01M8 14.5h.01M12 14.5h.01M16 14.5h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+        Rechner
+      </span>
+      <svg class="pfeil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="koerper" id="rechnerKoerper">
+      <div class="eingaben">
+        <label>\(n\)<input id="rn" type="text" inputmode="numeric" value="20" autocomplete="off"></label>
+        <label>\(p\)<input id="rp" type="text" inputmode="decimal" value="0,3" autocomplete="off"></label>
+        <label>\(k\)<input id="rk" type="text" inputmode="numeric" value="5" autocomplete="off"></label>
+      </div>
+      <div class="ausgaben">
+        <div class="ausgabe haupt"><span>\(P(X=k)\)</span><b id="aP">–</b></div>
+        <div class="ausgabe f"><span>\(F_{n;p}(k)=P(X\le k)\)</span><b id="aF">–</b></div>
+        <div class="ausgabe"><span>\(P(X\ge k)\)</span><b id="aG">–</b></div>
+      </div>
+      <div class="kenn"><span id="aMu"></span><span id="aSigma"></span></div>
+      <div class="minidiagramm" aria-hidden="true"><svg id="miniSvg" viewBox="0 0 288 70" preserveAspectRatio="none"></svg></div>
+      <p class="rhinweis">\(p\) als Dezimalzahl, Bruch (1/6) oder in Prozent (30 %).</p>
+    </div>
+  </aside>
+
+  <header class="breite">
+    <span class="marke">Mathe-LK Q2 · Stochastik</span>
+    <h1>Die Binomialverteilung <span>im Einsatz</span></h1>
+    <p class="unterzeile">15 Aufgaben aus dem Alltag, vom ersten „genau \(k\)“ bis zum Abiturniveau. Jede Aufgabe hat ein Diagramm. Oben rechts liegt der Rechner. Prüfe deine Ergebnisse und klapp die Musterlösung erst danach auf.</p>
+    <nav class="stufenweg" aria-label="Stufen">
+      <a href="#aufgabe-1"><b class="s1">1–4</b> Einstieg: genau \(k\)</a>
+      <a href="#aufgabe-5"><b class="s2">5–9</b> Kumuliert mit \(F_{n;p}\)</a>
+      <a href="#aufgabe-10"><b class="s3">10–15</b> Abiturniveau</a>
+    </nav>
+  </header>
+
+  <section class="breite nachschlagen" aria-label="Zum Nachschlagen">
+    <div class="kasten">
+      <h2>Zum Nachschlagen</h2>
+      <div class="formel">\(P(X=k) = \dbinom{n}{k}\cdot p^k\cdot (1-p)^{n-k}\)<br>\(F_{n;p}(k) = P(X\le k)\)</div>
+      <table class="regeln">
+        <tr><td>genau \(k\)</td><td>\(P(X=k)\)</td></tr>
+        <tr><td>höchstens \(k\)</td><td>\(P(X\le k) = F_{n;p}(k)\)</td></tr>
+        <tr><td>weniger als \(k\)</td><td>\(P(X\le k-1) = F_{n;p}(k-1)\)</td></tr>
+        <tr><td>mindestens \(k\)</td><td>\(P(X\ge k) = 1 - F_{n;p}(k-1)\)</td></tr>
+        <tr><td>mehr als \(k\)</td><td>\(P(X\ge k+1) = 1 - F_{n;p}(k)\)</td></tr>
+        <tr><td>von \(a\) bis \(b\)</td><td>\(P(a\le X\le b) = F_{n;p}(b) - F_{n;p}(a-1)\)</td></tr>
+      </table>
+    </div>
+    <div class="kasten">
+      <h2>Kenngrößen</h2>
+      <div class="formel">\(\mu = n\cdot p \qquad \sigma = \sqrt{n\cdot p\cdot(1-p)}\)</div>
+      <p>So gehst du bei jeder Aufgabe vor:</p>
+      <ol>
+        <li>Zufallsgröße festlegen: \(X\) = Anzahl der …, dazu \(n\) und \(p\).</li>
+        <li>Ereignis übersetzen: genau, höchstens, mindestens, zwischen?</li>
+        <li>Mit \(F_{n;p}\) schreiben. Im Diagramm siehst du, welche Balken zählen.</li>
+        <li>Mit dem Rechner ausrechnen. Bei „wie viele mindestens?“ probieren.</li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="leiste">
+    <div class="breite">
+      <div class="fortschritt">
+        <span id="zaehler">0 von 0 Ergebnissen richtig</span>
+        <div class="fbalken"><div id="fbalken"></div></div>
+      </div>
+      <div class="filter" role="group" aria-label="Aufgaben filtern">
+        <button data-stufe="0" aria-pressed="true">Alle</button>
+        <button data-stufe="1" aria-pressed="false">Einstieg</button>
+        <button data-stufe="2" aria-pressed="false">Kumuliert</button>
+        <button data-stufe="3" aria-pressed="false">Abiturniveau</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="breite" id="aufgaben"></main>
+
+  <footer class="breite" style="padding:30px 0 50px;color:var(--grau);font-size:15px;text-align:center">
+    Ergebnisse auf vier Nachkommastellen gerundet. Eingabe als Dezimalzahl (0,2627) oder in Prozent (26,27 %).
+  </footer>
+
+<script src="katex/katex.min.js"></script>
+<script src="katex/auto-render.min.js"></script>
+<script type="module">
+  import { AUFGABEN } from "./aufgaben.js";
+
+  /* ───────── Mathematik ───────── */
+  const lnFak = [0];
+  const lnf = (n) => { for (let i = lnFak.length; i <= n; i++) lnFak[i] = lnFak[i - 1] + Math.log(i); return lnFak[n]; };
+  function verteilung(n, p) {
+    const w = new Array(n + 1).fill(0);
+    if (p <= 0) { w[0] = 1; return w; }
+    if (p >= 1) { w[n] = 1; return w; }
+    const a = Math.log(p), b = Math.log(1 - p);
+    lnf(n);
+    for (let k = 0; k <= n; k++) w[k] = Math.exp(lnFak[n] - lnFak[k] - lnFak[n - k] + k * a + (n - k) * b);
+    return w;
+  }
+  const kumuliert = (w) => { let s = 0; return w.map((x) => Math.min(1, (s += x))); };
+  const summe = (w, von, bis) => { let s = 0; for (let k = Math.max(0, von); k <= Math.min(w.length - 1, bis); k++) s += w[k]; return Math.min(1, s); };
+
+  const fmt = (x, d = 4) => {
+    if (x > 0 && x < 0.00005) return "< 0,0001";
+    if (x < 1 && x > 0.99995) return "> 0,9999";
+    return x.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  const fmtZ = (x) => x.toLocaleString("de-DE", { maximumFractionDigits: 4 });
+
+  const zahl = (wert) => {
+    let s = String(wert).trim().replace(/\s/g, "").replace(",", ".");
+    const prozent = s.endsWith("%");
+    if (prozent) s = s.slice(0, -1);
+    let x;
+    if (/^-?\d*\.?\d+\/\d*\.?\d+$/.test(s)) { const [a, b] = s.split("/").map(Number); x = a / b; }
+    else x = Number(s);
+    if (s === "" || !isFinite(x)) return null;
+    return { x: prozent ? x / 100 : x, prozent };
+  };
+
+  /* ───────── Rechner ───────── */
+  const rechner = document.getElementById("rechner");
+  const griff = rechner.querySelector(".griff");
+  const RSPEICHER = "binom-rechner-offen";
+  function rechnerOeffnen(offen) {
+    rechner.classList.toggle("offen", offen);
+    griff.setAttribute("aria-expanded", String(offen));
+    document.body.classList.toggle("rechner-offen", offen);
+    try { localStorage.setItem(RSPEICHER, offen ? "1" : "0"); } catch {}
+  }
+  let start = window.innerWidth >= 1240;
+  try { const s = localStorage.getItem(RSPEICHER); if (s !== null) start = s === "1"; } catch {}
+  rechnerOeffnen(start);
+  griff.addEventListener("click", () => rechnerOeffnen(!rechner.classList.contains("offen")));
+
+  const rn = document.getElementById("rn"), rp = document.getElementById("rp"), rk = document.getElementById("rk");
+  function rechnen() {
+    const n = Number(rn.value.trim());
+    const pz = zahl(rp.value);
+    let p = pz ? pz.x : NaN;
+    if (pz && !pz.prozent && p > 1 && p <= 100) p /= 100;
+    const k = Number(rk.value.trim());
+    const nOk = Number.isInteger(n) && n >= 1 && n <= 5000;
+    const pOk = isFinite(p) && p >= 0 && p <= 1;
+    const kOk = Number.isInteger(k);
+    rn.classList.toggle("fehler", !nOk); rp.classList.toggle("fehler", !pOk); rk.classList.toggle("fehler", !kOk);
+    const ids = ["aP", "aF", "aG"];
+    if (!(nOk && pOk && kOk)) { ids.forEach((i) => (document.getElementById(i).textContent = "–")); document.getElementById("aMu").textContent = ""; document.getElementById("aSigma").textContent = ""; document.getElementById("miniSvg").innerHTML = ""; return; }
+    const w = verteilung(n, p);
+    const Pk = k >= 0 && k <= n ? w[k] : 0;
+    const Fk = k < 0 ? 0 : k >= n ? 1 : summe(w, 0, k);
+    const Gk = k <= 0 ? 1 : k > n ? 0 : 1 - summe(w, 0, k - 1);
+    document.getElementById("aP").textContent = fmt(Pk);
+    document.getElementById("aF").textContent = fmt(Fk);
+    document.getElementById("aG").textContent = fmt(Math.max(0, Gk));
+    document.getElementById("aMu").textContent = `μ = ${fmtZ(n * p)}`;
+    document.getElementById("aSigma").textContent = `σ ≈ ${fmtZ(Math.round(Math.sqrt(n * p * (1 - p)) * 10000) / 10000)}`;
+    // Mini-Histogramm
+    const [lo, hi] = bereich(n, p, k, k);
+    const max = Math.max(...w.slice(lo, hi + 1)) || 1;
+    const anz = hi - lo + 1, bw = 288 / anz;
+    let svg = "";
+    for (let i = lo; i <= hi; i++) {
+      const h = (w[i] / max) * 66;
+      const kl = i === k ? "k" : i < k ? "f" : "";
+      svg += `<rect class="${kl}" x="${((i - lo) * bw + bw * 0.1).toFixed(2)}" y="${(70 - h).toFixed(2)}" width="${Math.max(0.6, bw * 0.8).toFixed(2)}" height="${h.toFixed(2)}"/>`;
+    }
+    document.getElementById("miniSvg").innerHTML = svg;
+  }
+  [rn, rp, rk].forEach((el) => el.addEventListener("input", rechnen));
+  rechnen();
+  function inRechner(n, p, k) {
+    rn.value = n; rp.value = fmtZ(p); if (k !== undefined) rk.value = k;
+    rechnen();
+    if (!rechner.classList.contains("offen")) rechnerOeffnen(true);
+  }
+
+  // sichtbarer Bereich eines Histogramms
+  function bereich(n, p, von = 0, bis = 0) {
+    if (n <= 40) return [0, n];
+    const mu = n * p, s = Math.sqrt(n * p * (1 - p)) || 1;
+    let lo = Math.max(0, Math.floor(mu - 4.5 * s)), hi = Math.min(n, Math.ceil(mu + 4.5 * s));
+    if (isFinite(von) && von > lo - 15 && von < lo) lo = Math.max(0, von);
+    if (isFinite(bis) && bis < hi + 15 && bis > hi) hi = Math.min(n, bis);
+    if (hi - lo < 12) { lo = Math.max(0, lo - 4); hi = Math.min(n, hi + 4); }
+    return [lo, hi];
+  }
+
+  /* ───────── Diagramm je Aufgabe ───────── */
+  const NS = "http://www.w3.org/2000/svg";
+  function ereignisText(von, bis, n) {
+    const b = Math.min(bis, n);
+    if (von === b) return `P(X=${von})`;
+    if (von <= 0) return `P(X\\le ${b})`;
+    if (b >= n) return `P(X\\ge ${von})`;
+    return `P(${von}\\le X\\le ${b})`;
+  }
+  function baueDiagramm(box, cfg, aufgabe) {
+    const st = { n: cfg.n, p: cfg.p, modus: "einzeln", von: null, bis: null };
+    box.innerHTML = `
+      <div class="oben"><span class="titel"></span>
+        <span class="umschalter" role="group" aria-label="Darstellung">
+          <button type="button" data-m="einzeln" aria-pressed="true">P(X=k)</button><button type="button" data-m="kum" aria-pressed="false">F(k)</button>
+        </span></div>
+      <svg viewBox="0 0 360 220" role="img" aria-label="Histogramm der Binomialverteilung"></svg>
+      <div class="hoverinfo"></div>
+      <div class="info">Tippe bei einer Teilaufgabe auf „Im Diagramm“. Dann siehst du, welche Balken zählen.</div>
+      ${cfg.regler ? `<label class="regler"><span>\\(${cfg.regler}\\)</span><input type="range" min="${cfg.min}" max="${cfg.max}" step="${cfg.schritt}" value="${cfg[cfg.regler]}"><output></output></label>` : ""}
+      <button type="button" class="uebernehmen">→ n und p in den Rechner</button>`;
+    const svg = box.querySelector("svg"), titel = box.querySelector(".titel"), info = box.querySelector(".info"), hinfo = box.querySelector(".hoverinfo");
+    const regler = box.querySelector(".regler input"), out = box.querySelector(".regler output");
+
+    function zeichnen() {
+      const { n, p } = st;
+      titel.innerHTML = katex.renderToString(`B(${n};\\ ${fmtZ(p).replace(",", "{,}")})`);
+      if (out) out.textContent = cfg.regler === "p" ? fmtZ(p) : String(n);
+      const w = verteilung(n, p), F = kumuliert(w);
+      const werte = st.modus === "kum" ? F : w;
+      const [lo, hi] = bereich(n, p, st.von ?? 0, st.bis ?? 0);
+      const L = 40, R = 352, T = 10, B = 190;
+      const ymax = st.modus === "kum" ? 1 : niceMax(Math.max(...werte.slice(lo, hi + 1)));
+      const anz = hi - lo + 1, bw = (R - L) / anz;
+      svg.innerHTML = "";
+      const el = (tag, attr, text) => { const e = document.createElementNS(NS, tag); for (const a in attr) e.setAttribute(a, attr[a]); if (text !== undefined) e.textContent = text; svg.appendChild(e); return e; };
+      // Gitter und y-Achse
+      const yst = ymax / 4;
+      for (let i = 0; i <= 4; i++) {
+        const y = B - (i / 4) * (B - T);
+        el("line", { x1: L, x2: R, y1: y, y2: y, class: i ? "gitter" : "achse" });
+        el("text", { x: L - 5, y: y + 4, "text-anchor": "end" }, fmtZ(Math.round(i * yst * 1000) / 1000));
+      }
+      // Balken
+      const schritt = Math.max(1, niceStep(anz / 10));
+      const von = st.von ?? Infinity, bis = st.bis ?? -Infinity;
+      for (let k = lo; k <= hi; k++) {
+        const h = (werte[k] / ymax) * (B - T);
+        const x = L + (k - lo) * bw;
+        const r = el("rect", { x: (x + bw * 0.08).toFixed(2), y: (B - h).toFixed(2), width: Math.max(0.8, bw * 0.84).toFixed(2), height: Math.max(0, h).toFixed(2), class: "b" + (k >= von && k <= bis ? " an" : "") });
+        r.dataset.k = k;
+        if (k % schritt === 0) el("text", { x: (x + bw / 2).toFixed(2), y: B + 15, "text-anchor": "middle" }, k);
+      }
+      el("text", { x: R, y: B + 28, "text-anchor": "end" }, "k");
+      // Ereignis
+      if (st.von !== null) {
+        const sumW = summe(w, st.von, st.bis);
+        info.innerHTML = `Markiert: ${katex.renderToString(ereignisText(st.von, st.bis, n))} \\(=\\) <span class="wert">${fmt(sumW)}</span>`;
+        renderMathInElement(info, { delimiters: [{ left: "\\(", right: "\\)", display: false }] });
+      }
+      if (lo > 0 || hi < n) hinfo.textContent = `Gezeigt: k = ${lo} bis ${hi}. Die übrigen Balken sind fast null.`;
+      else hinfo.textContent = "";
+      st.w = w; st.F = F;
+    }
+    // Hover / Tippen auf Balken
+    function zeigeBalken(ev) {
+      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const bars = [...svg.querySelectorAll("rect.b")];
+      if (!bars.length) return;
+      let best = null;
+      for (const b of bars) { const x = +b.getAttribute("x"), wd = +b.getAttribute("width"); if (loc.x >= x - 2 && loc.x <= x + wd + 2) best = b; }
+      bars.forEach((b) => b.classList.toggle("hover", b === best));
+      if (best) { const k = +best.dataset.k; hinfo.textContent = `k = ${k}:  P(X = ${k}) = ${fmt(st.w[k])}   ·   F(${k}) = ${fmt(st.F[k])}`; }
+    }
+    svg.addEventListener("pointermove", zeigeBalken);
+    svg.addEventListener("pointerdown", zeigeBalken);
+    svg.addEventListener("pointerleave", () => { svg.querySelectorAll("rect.hover").forEach((b) => b.classList.remove("hover")); zeichnen(); });
+    box.querySelectorAll(".umschalter button").forEach((b) => b.addEventListener("click", () => {
+      st.modus = b.dataset.m;
+      box.querySelectorAll(".umschalter button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      zeichnen();
+    }));
+    if (regler) regler.addEventListener("input", () => {
+      const v = Number(regler.value);
+      if (cfg.regler === "p") st.p = Math.round(v * 1000) / 1000; else st.n = v;
+      zeichnen();
+    });
+    box.querySelector(".uebernehmen").addEventListener("click", () => inRechner(st.n, st.p, st.von !== null ? Math.min(st.bis, st.n) : undefined));
+    zeichnen();
+    return {
+      zeige(z) {
+        if (z.n !== undefined) st.n = z.n;
+        if (z.p !== undefined) st.p = z.p;
+        if (regler) { regler.value = cfg.regler === "p" ? st.p : st.n; }
+        st.von = z.von; st.bis = Math.min(z.bis, st.n);
+        if (z.bis === Infinity) st.bis = Infinity;
+        zeichnen();
+      },
+    };
+  }
+  function niceMax(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))); const m = x / e;
+    const s = m <= 1 ? 1 : m <= 1.2 ? 1.2 : m <= 1.6 ? 1.6 : m <= 2 ? 2 : m <= 2.4 ? 2.4 : m <= 3 ? 3 : m <= 4 ? 4 : m <= 5 ? 5 : m <= 6 ? 6 : m <= 8 ? 8 : 10;
+    return s * e;
+  }
+  function niceStep(x) { if (x <= 1) return 1; if (x <= 2) return 2; if (x <= 5) return 5; if (x <= 10) return 10; return 20; }
+
+  /* ───────── Aufgaben aufbauen ───────── */
+  const STUFEN = { 1: "Einstieg", 2: "Kumuliert", 3: "Abiturniveau" };
+  const SPEICHER = "binomial-uebungen-v1";
+  const geloest = new Set();
+  try { for (const k of JSON.parse(localStorage.getItem(SPEICHER) || "[]")) geloest.add(k); } catch {}
+  const speichern = () => { try { localStorage.setItem(SPEICHER, JSON.stringify([...geloest])); } catch {} };
+  const AUGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M9 20V4M14 20v-7M19 20v-11"/></svg>`;
+
+  const alleMitErgebnis = [];
+  const main = document.getElementById("aufgaben");
+
+  for (const a of AUFGABEN) {
+    const art = document.createElement("article");
+    art.className = "aufgabe";
+    art.id = `aufgabe-${a.nr}`;
+    art.dataset.stufe = a.stufe;
+    art.innerHTML = `
+      <div class="kopf" style="background-image:url('bilder/${a.bild}.webp')">
+        <div class="zeile"><span class="nummer">${a.nr}</span><span class="stufe s${a.stufe}">${STUFEN[a.stufe]}</span></div>
+        <h2>${a.titel}</h2>
+        <p>${a.text}</p>
+      </div>
+      <div class="inhalt"><ol class="teile"></ol><div class="diagramm"></div></div>`;
+    main.appendChild(art);
+    const liste = art.querySelector(".teile");
+    const dia = baueDiagramm(art.querySelector(".diagramm"), a.diagramm, a);
+
+    a.teile.forEach((teil, i) => {
+      const bu = "abcdefg"[i];
+      const id = `${a.nr}${bu}`;
+      const li = document.createElement("li");
+      li.className = "teil";
+      li.innerHTML = `<div class="frage"><span class="buchstabe">${bu})</span><div>${teil.frage}</div></div>`;
+      const wz = document.createElement("div");
+      wz.className = "werkzeuge";
+      const aktivieren = () => {
+        if (!teil.zeige) return;
+        liste.querySelectorAll(".teil.aktiv").forEach((x) => x.classList.remove("aktiv"));
+        li.classList.add("aktiv");
+        dia.zeige(teil.zeige);
+      };
+      if (teil.erg !== undefined) {
+        alleMitErgebnis.push(id);
+        const form = document.createElement("form");
+        form.style.display = "contents";
+        form.innerHTML = `
+          <input type="text" inputmode="decimal" autocomplete="off" aria-label="Ergebnis zu ${id}" placeholder="${teil.ganzzahl ? "z. B. 7" : "z. B. 0,1234"}">
+          <button type="submit">Prüfen</button>`;
+        const meldung = document.createElement("span");
+        meldung.className = "meldung";
+        meldung.setAttribute("aria-live", "polite");
+        form.addEventListener("submit", (ev) => {
+          ev.preventDefault();
+          const z = zahl(form.querySelector("input").value);
+          meldung.className = "meldung";
+          if (!z) { meldung.textContent = "Bitte eine Zahl eingeben."; return; }
+          let x = z.x;
+          if (!teil.ganzzahl && !z.prozent && x > 1 && teil.erg < 1) x /= 100;
+          const d = Math.abs(x - teil.erg);
+          const tol = teil.tol ?? 0.0006;
+          if (teil.ganzzahl ? x === teil.erg : d <= tol) {
+            meldung.textContent = "Richtig!";
+            meldung.classList.add("richtig");
+            li.classList.add("geloest");
+            geloest.add(id); speichern(); fortschritt();
+          } else if (!teil.ganzzahl && d <= Math.max(0.006, tol * 3)) {
+            meldung.textContent = "Fast. Runde genauer.";
+            meldung.classList.add("fast");
+          } else if (teil.ganzzahl && Math.abs(x - teil.erg) === 1) {
+            meldung.textContent = "Knapp daneben. Prüfe die Grenze genau.";
+            meldung.classList.add("fast");
+          } else {
+            meldung.textContent = "Noch nicht. Prüfe n, p und das Ereignis.";
+            meldung.classList.add("falsch");
+          }
+        });
+        wz.appendChild(form);
+        if (teil.zeige) {
+          const zb = document.createElement("button");
+          zb.type = "button"; zb.className = "zeigen"; zb.innerHTML = `${AUGE} Im Diagramm`;
+          zb.addEventListener("click", () => {
+            aktivieren();
+            const box = art.querySelector(".diagramm").getBoundingClientRect();
+            if (box.top < 60 || box.bottom > window.innerHeight) art.querySelector(".diagramm").scrollIntoView({ block: "center" });
+          });
+          wz.appendChild(zb);
+        }
+        wz.appendChild(meldung);
+        if (geloest.has(id)) li.classList.add("geloest");
+        li.appendChild(wz);
+      }
+      if (teil.tipp) {
+        const d = document.createElement("details");
+        d.className = "tipp";
+        d.innerHTML = `<summary>Tipp</summary><div class="rechnung"><p>${teil.tipp}</p></div>`;
+        li.appendChild(d);
+      }
+      const d = document.createElement("details");
+      d.className = "loesung";
+      d.innerHTML = `<summary>Musterlösung</summary><div class="rechnung"></div>`;
+      const r = d.querySelector(".rechnung");
+      for (const zeile of teil.loesung) {
+        if (zeile.startsWith("p:")) { const p = document.createElement("p"); p.innerHTML = zeile.slice(2); r.appendChild(p); }
+        else { const div = document.createElement("div"); katex.render(zeile, div, { displayMode: true, throwOnError: false }); r.appendChild(div); }
+      }
+      d.addEventListener("toggle", () => { if (d.open) aktivieren(); });
+      li.appendChild(d);
+      liste.appendChild(li);
+    });
+  }
+  renderMathInElement(document.body, { delimiters: [{ left: "\\(", right: "\\)", display: false }], throwOnError: false });
+
+  function fortschritt() {
+    const n = alleMitErgebnis.filter((id) => geloest.has(id)).length;
+    document.getElementById("zaehler").textContent = `${n} von ${alleMitErgebnis.length} Ergebnissen richtig`;
+    document.getElementById("fbalken").style.width = `${(100 * n) / alleMitErgebnis.length}%`;
+  }
+  fortschritt();
+
+  document.querySelectorAll(".filter button").forEach((b) =>
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".filter button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      const s = b.dataset.stufe;
+      document.querySelectorAll(".aufgabe").forEach((art) => (art.hidden = s !== "0" && art.dataset.stufe !== s));
+    }),
+  );
+</script>
+<!-- rechtliches --><style>.erik-recht{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:center;padding:18px 12px 22px;opacity:.75}.erik-recht a{color:inherit}@media print{.erik-recht{display:none}}</style><footer class="erik-recht"><a href="https://erikdahlmann.github.io/impressum.html">Impressum</a> · <a href="https://erikdahlmann.github.io/datenschutz.html">Datenschutz</a></footer><!-- /rechtliches --></body>
+</html>
